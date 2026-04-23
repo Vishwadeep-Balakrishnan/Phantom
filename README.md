@@ -48,7 +48,7 @@ Status: `0x00` OK, `0x01` NOT_FOUND, `0x02` ERROR
 
 ## build
 
-Requires gcc and Linux (the epoll event loop is Linux-specific). Tested on Ubuntu 22.04 and 24.04.
+Requires gcc and Linux (the epoll event loop is Linux-specific). Tested on Ubuntu 24.04.
 
 ```sh
 make
