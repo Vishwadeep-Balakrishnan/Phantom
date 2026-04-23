@@ -2,7 +2,7 @@
 
 A distributed in-memory key-value store written in C. No external dependencies beyond POSIX and pthreads. Fits in a single terminal window.
 
-I built this to understand how production systems like Cassandra and DynamoDB actually work at the protocol level, not just from reading about them. The result is something small enough to read in an afternoon but real enough to explain in an interview.
+I built this to understand how production systems like Cassandra and DynamoDB actually work at the protocol level, not just from reading about them.
 
 ## what it does
 
@@ -14,7 +14,7 @@ I built this to understand how production systems like Cassandra and DynamoDB ac
 
 ## design
 
-There are six moving parts and they each do one thing:
+There are six parts and they each do one thing:
 
 **queue.c** — Lock-free MPMC queue using C11 atomics and compare-and-swap. Based on Dmitry Vyukov's sequence-number design. No mutexes, no kernel calls on the fast path.
 
@@ -24,13 +24,13 @@ There are six moving parts and they each do one thing:
 
 **wal.c** — Append-only write-ahead log with CRC32 per record. Every write is `fdatasync`'d before we send an ACK. On startup the log replays into the memtable, which is how you get crash recovery without a separate storage engine.
 
-**gossip.c** — Simplified SWIM. Every 500ms each node increments its heartbeat counter, fans out to 3 random live peers, and checks if any members have gone quiet. After 5 missed rounds a node is marked suspect; after 10 it's declared dead and removed from the ring.
+**gossip.c** — Simplified SWIM. Every 500ms each node increments its heartbeat counter, fans out to 3 random live peers, and checks if any members have gone quiet. After 5 missed rounds a node is marked suspect, after 10 it's declared dead and removed from the ring.
 
-**net.c** — Edge-triggered epoll event loop with a non-blocking accept path. One thread, thousands of concurrent connections. Binary protocol keeps serialization off the hot path.
+**net.c** — Edge-triggered epoll event loop with a non-blocking accept path. One thread, thousands of concurrent connections. Binary protocol keeps serialisation off the hot path.
 
 ## wire protocol
 
-Requests and responses are binary, not text. This is deliberate — text protocols are fine for Redis at human latencies but binary cuts CPU time on the serialization path.
+Requests and responses are binary, not text. Text protocols are fine for Redis at human latencies but binary cuts CPU time on the serialisation path.
 
 Request:
 ```
@@ -160,15 +160,6 @@ phantom/
 └── Makefile
 ```
 
-## what's not here
-
-This is a learning project, not production software. Missing pieces that a real system would need:
-
-- Replication. Right now each key lives on one node. You'd want the router to write to N replicas and read from a quorum.
-- Anti-entropy. No Merkle tree or background repair, so nodes that miss writes during a partition stay stale.
-- Compaction. The WAL grows forever. A real implementation would compact it periodically.
-- TLS. All traffic is plaintext.
-- Cluster bootstrapping. The seed mechanism works but is naive — a production system would use a config service or DNS-based discovery.
 
 Each of these is a real problem with real solutions in the literature. The codebase is structured to make adding them possible without rewriting everything.
 
