@@ -1,0 +1,8 @@
+build/
+data/
+phantom
+bench/bench
+bench/phantom-cli
+*.o
+*.d
+.DS_Store
