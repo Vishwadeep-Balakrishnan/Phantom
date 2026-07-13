@@ -2,7 +2,7 @@
 
 A distributed in-memory key-value store written in C. No external dependencies beyond POSIX and pthreads. Fits in a single terminal window.
 
-I built this to understand how production systems like Cassandra and DynamoDB actually work at the protocol level, not just from reading about them.
+I built this to understand how production systems like Cassandra and DynamoDB actually work at the protocol level.
 
 ## what it does
 
